@@ -19,6 +19,14 @@ fi
 
 echo "Using REQUEST_TIMEOUT: $REQUEST_TIMEOUT"
 
+# Fix powermem infer default value (disable intelligent mode to avoid memory deletion bug)
+# powermem is installed dynamically by uvx, so we need to find its location
+POWERMEM_MEMORY=$(find /root/.cache -path "*/powermem/core/memory.py" 2>/dev/null | head -1)
+if [ -n "$POWERMEM_MEMORY" ] && [ -f "$POWERMEM_MEMORY" ]; then
+  sed -i 's/infer: bool = True/infer: bool = False/' "$POWERMEM_MEMORY"
+  echo "Fixed powermem infer default to False"
+fi
+
 # Auto-start Docker daemon if Docker is installed
 if command -v dockerd >/dev/null 2>&1; then
   echo "Docker daemon detected, starting dockerd..."
